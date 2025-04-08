@@ -1,16 +1,16 @@
-# Use official Node.js image
-FROM node:18-alpine
+FROM jenkins/jenkins:lts
 
-# Set working directory
-WORKDIR /app
+USER root
 
-# Copy package.json and install dependencies
-COPY package*.json ./
-RUN npm install
+# Install Docker
+RUN apt-get update && \
+    apt-get install -y docker.io && \
+    usermod -aG docker jenkins
 
-# Copy app code
-COPY . .
+# Clean up
+RUN apt-get clean
 
-# Expose port and run app
-EXPOSE 3000
-CMD ["node", "index.js"]
+# Switch back to Jenkins user
+USER jenkins
+
+
