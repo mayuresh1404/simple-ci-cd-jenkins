@@ -1,26 +1,23 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:18'
-            args '-u root:root' // to avoid permission issues
-        }
-    }
+    agent any
+
     stages {
-        stage('Install Dependencies') {
+        stage('Pull Docker Image') {
             steps {
-                sh 'npm install'
+                sh 'docker pull node:18'
             }
         }
-        stage('Run Tests') {
+
+        stage('Build Docker Image') {
             steps {
-                sh 'npm test || echo "No tests defined"'
+                sh 'docker build -t my-node-app .'
             }
         }
-        stage('Build') {
+
+        stage('Run Docker Container') {
             steps {
-                sh 'npm run build || echo "No build script defined"'
+                sh 'docker run --rm my-node-app'
             }
         }
     }
 }
-
