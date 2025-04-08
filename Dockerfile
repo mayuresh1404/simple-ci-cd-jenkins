@@ -1,16 +1,17 @@
-FROM jenkins/jenkins:lts
+# Use Node.js base image
+FROM node:18
 
-USER root
+# Create app directory
+WORKDIR /usr/src/app
 
-# Install Docker
-RUN apt-get update && \
-    apt-get install -y docker.io && \
-    usermod -aG docker jenkins
+# Copy files
+COPY package*.json ./
+RUN npm install
 
-# Clean up
-RUN apt-get clean
+COPY . .
 
-# Switch back to Jenkins user
-USER jenkins
+# Run the app
+CMD ["node", "index.js"]
+
 
 
