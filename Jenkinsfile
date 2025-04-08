@@ -1,14 +1,19 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:18'
+            args '-u root:root'  // Use root to install packages if needed
+        }
+    }
 
     environment {
-        IMAGE_NAME = "mayuresh1404/simple-ci-cd-jenkins"
+        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-creds')
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-               git branch: 'main', url: 'https://github.com/mayuresh1404/simple-ci-cd-jenkins.git'
+                git branch: 'main', url: 'https://github.com/mayuresh1404/simple-ci-cd-jenkins.git'
             }
         }
 
@@ -20,21 +25,20 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh './test.sh'
+                sh 'chmod +x test.sh && ./test.sh'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t $IMAGE_NAME ."
+                sh 'docker build -t $DOCKER_HUB_CREDENTIALS_USR/simple-ci-cd-jenkins .'
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                    sh "docker push $IMAGE_NAME"
+                withDockerRegistry([ credentialsId: 'dockerhub-creds', url: '' ]) {
+                    sh 'docker push $DOCKER_HUB_CREDENTIALS_USR/simple-ci-cd-jenkins'
                 }
             }
         }
