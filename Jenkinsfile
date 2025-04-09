@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'mayuresh1404/simple-ci-cd-jenkins'
+        IMAGE_NAME = 'jenkins'
     }
 
     stages {
