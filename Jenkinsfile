@@ -1,8 +1,13 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'docker:20.10.24-dind'
+            args '-v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app -w /app'
+        }
+    }
 
     environment {
-        IMAGE_NAME = 'jenkins/jenkins'
+        IMAGE_NAME = 'mayuresh1404/simple-ci-cd-jenkins'
     }
 
     stages {
@@ -14,24 +19,25 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh "docker build -t $IMAGE_NAME ."
+                sh 'docker build -t $IMAGE_NAME .'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'npm test || echo "Skipping tests..."'
+                sh 'docker run --rm $IMAGE_NAME npm test || echo "No test defined"'
             }
         }
 
         stage('Deploy') {
             steps {
-                script {
-                    sh "docker rm -f $IMAGE_NAME || true"
-                    sh "docker run -d -p 8080:8080 50000:50000 --name $IMAGE_NAME $IMAGE_NAME"
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $IMAGE_NAME
+                    '''
                 }
             }
         }
     }
 }
-
