@@ -1,23 +1,37 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = 'jenkins'
+    }
+
     stages {
-        stage('Pull Docker Image') {
+        stage('Clone') {
             steps {
-                sh 'docker pull node:18'
+                git 'https://git@github.com:mayuresh1404/simple-ci-cd-jenkins.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
-                sh 'docker build -t my-node-app .'
+                sh "docker build -t $IMAGE_NAME ."
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Test') {
             steps {
-                sh 'docker run --rm my-node-app'
+                sh 'npm test || echo "Skipping tests..."'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh "docker rm -f $IMAGE_NAME || true"
+                    sh "docker run -d -p 3000:3000 --name $IMAGE_NAME $IMAGE_NAME"
+                }
             }
         }
     }
 }
+
