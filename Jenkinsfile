@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'jenkins'
+        IMAGE_NAME = 'mayuresh1404/simple-ci-cd-jenkins'
     }
 
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/mayuresh1404/simple-ci-cd-jenkins.git'
+                git branch: 'main', url: 'https://github.com/mayuresh1404/simple-ci-cd-jenkins.git'
             }
         }
 
@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     sh "docker rm -f $IMAGE_NAME || true"
-                    sh "docker run -d -p 3000:3000 --name $IMAGE_NAME $IMAGE_NAME"
+                    sh "docker run -d -p 8080:8080 50000:50000 --name $IMAGE_NAME $IMAGE_NAME"
                 }
             }
         }
