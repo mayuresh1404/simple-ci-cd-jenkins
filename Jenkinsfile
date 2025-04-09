@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git 'https://git@github.com:mayuresh1404/simple-ci-cd-jenkins.git'
+                git 'https://github.com/mayuresh1404/simple-ci-cd-jenkins.git'
             }
         }
 
